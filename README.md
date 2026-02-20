@@ -17,25 +17,25 @@ You can play around with the tool yourself here: [Spotify Audio Space Explorer](
 
 ### Overview Panel
 
-![Metrics + Elbow Graph](images/elbow.png)
+![Metrics + Elbow Graph](Screenshots/elbow.png)
 
 ---
 
 ### 3D PCA Cluster Visualization
 
-![3D PCA Cluster Viz](images/3d-cluster.png)
+![3D PCA Cluster Viz](Screenshots/3d-cluster.png)
 
 ---
 
 ### Cluster Comparison Heatmap
 
-![Cluster Heatmap](images/heatmap.png)
+![Cluster Heatmap](Screenshots/heatmap.png)
 
 ---
 
 ### Cluster Cards with Audio Previews
 
-![Cluster Cards](images/cluster-cards.png)
+![Cluster Cards](Screenshots/cluster-cards.png)
 
 ---
 
