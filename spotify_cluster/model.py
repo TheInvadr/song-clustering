@@ -95,9 +95,7 @@ def descriptive_cluster_label(
     feature_cols: list[str],
     top_n: int = 2
 ) -> str:
-    """
-    Generate a neutral description based on feature z-scores.
-    """
+
 
     global_means = df_clustered[feature_cols].mean()
     global_stds = df_clustered[feature_cols].std(ddof=0)
@@ -119,7 +117,7 @@ def descriptive_cluster_label(
     label_parts = []
 
     for feat, val in high_feats.items():
-        if val > 0.5:  # meaningful deviation
+        if val > 0.5:  
             label_parts.append(f"High {feat}")
 
     for feat, val in low_feats.items():

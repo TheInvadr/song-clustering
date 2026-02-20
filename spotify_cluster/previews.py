@@ -31,10 +31,7 @@ def _key(song_title: str, artist: str) -> str:
 
 
 def fetch_itunes_preview_url(song_title: str, artist: str, timeout: int = 10) -> Optional[str]:
-    """
-    Returns a 30s preview URL from iTunes Search API if available, else None.
-    Uses a local JSON cache so each track is only queried once.
-    """
+
     cache = _load_cache()
     k = _key(song_title, artist)
     if k in cache:
@@ -60,7 +57,6 @@ def fetch_itunes_preview_url(song_title: str, artist: str, timeout: int = 10) ->
     results = data.get("results", [])
     preview = None
     if results:
-        # pick the first result that has a previewUrl
         for item in results:
             p = item.get("previewUrl")
             if p:

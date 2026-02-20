@@ -26,21 +26,17 @@ st.set_page_config(page_title="Spotify Audio Clustering", layout="wide")
 st.title("🎵 Spotify Audio Space Explorer")
 st.caption("K-Means clustering of Spotify audio features (unsupervised).")
 
-# ---- Session state ----
 if "analyzed" not in st.session_state:
     st.session_state.analyzed = False
 if "k" not in st.session_state:
     st.session_state.k = 4
 
-# ---- Load data (cached) ----
 @st.cache_data
 def get_df():
     return load_spotify_csv(DATA_PATH)
 
 df = get_df()
 feature_cols = DEFAULT_FEATURE_COLS
-
-# ---- Sidebar controls ----
 with st.sidebar:
     st.header("Controls")
     k = st.slider("Clusters (K)", 2, 10, int(st.session_state.k))
@@ -48,13 +44,10 @@ with st.sidebar:
     st.markdown("---")
     if st.button("Analyze", type="primary"):
         st.session_state.analyzed = True
-        st.session_state.k = k  # persist chosen K
-
-# If user changes K after analyzing, keep analyzed True but recompute
+        st.session_state.k = k 
 if st.session_state.analyzed and k != st.session_state.k:
     st.session_state.k = k
 
-# ---- Cached compute keyed only by K ----
 @st.cache_data
 def compute_for_k(k_val: int):
     elbow = compute_elbow_inertia(df, feature_cols, 2, 10)
@@ -70,7 +63,6 @@ elbow_df, artifacts, profiles_df = compute_for_k(int(st.session_state.k))
 
 dfc = artifacts.df
 
-# ---- Layout tabs ----
 tab_overview, tab_visual, tab_clusters = st.tabs(["Overview", "Visualize", "Cluster Details"])
 
 with tab_overview:
@@ -143,7 +135,6 @@ with tab_visual:
         st.write(f"**Selected:** {row['song_title']} — {row['artist']}")
         st.write(f"**Cluster:** {int(row['cluster'])}")
 
-        # Nearest neighbors in scaled space
         distances, indices = artifacts.nn.kneighbors([artifacts.X_scaled[pick]])
         neighbors = [int(i) for i in indices[0] if int(i) != int(pick)][:8]
         st.markdown("**Similar songs (nearest in feature space):**")

@@ -30,12 +30,10 @@ def load_spotify_csv(path: str) -> pd.DataFrame:
     if missing:
         raise ValueError(f"Missing columns in CSV: {missing}")
 
-    # Drop rows with missing required numeric values or display fields
     keep_cols = list(set(DEFAULT_FEATURE_COLS + ["song_title", "artist", "key", "mode", "time_signature"]))
     df = df[keep_cols].copy()
     df = df.dropna().reset_index(drop=True)
 
-    # Ensure types
     df["song_title"] = df["song_title"].astype(str)
     df["artist"] = df["artist"].astype(str)
 
