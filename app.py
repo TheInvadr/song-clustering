@@ -24,7 +24,7 @@ DATA_PATH = "data/spotify.csv"
 
 st.set_page_config(page_title="Spotify Audio Clustering", layout="wide")
 st.title("🎵 Spotify Audio Space Explorer")
-st.caption("K-Means clustering of Spotify audio features (unsupervised).")
+st.caption("K-Means clustering of Spotify audio features (unsupervised). By Rahul Nadipalli")
 
 if "analyzed" not in st.session_state:
     st.session_state.analyzed = False
