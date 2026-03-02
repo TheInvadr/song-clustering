@@ -1,205 +1,169 @@
 # Spotify Audio Space Explorer
 
-**Discovering Latent Musical Structure Through Unsupervised Learning**
+> Interactive Streamlit dashboard that clusters ~1,500 Spotify tracks by acoustic features using K-Means without any genre labels.
+
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![Streamlit](https://img.shields.io/badge/streamlit-latest-red)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Demo](#demo)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the App](#running-the-app)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
 ## Overview
 
-Spotify Audio Space Explorer is an interactive machine learning application that applies **K-Means clustering** to acoustic feature representations of songs in order to uncover latent structural groupings in music without relying on genre labels.
-Rather than clustering songs by artist, playlist, or predefined categories, this project uses only Spotify’s low-level audio features such as energy, danceability, valence, tempo, and acousticness. The objective is to investigate whether meaningful musical structure emerges naturally from numerical representations of these songs alone.
+**Spotify Audio Space Explorer** explores latent structural groupings hidden in songs without needing predefined genre labels or playlists.
 
-You can play around with the tool yourself here: [Spotify Audio Space Explorer](https://spotify-song-clustering.streamlit.app/)
+The app uses **K-Means clustering** (scikit-learn) applied to Spotify's low-level audio features (energy, danceability, valence, tempo, acousticness, and more) to partition ~1,500 tracks into user-defined clusters. Features are first standardized with `StandardScaler` so that every dimension contributes equally to Euclidean distance. Two evaluation metrics (the **elbow method** and the **silhouette score**) guide the choice of K, and **PCA** reduces the 10-dimensional feature space to 2D/3D for visualization. Cluster descriptions are generated automatically from z-score deviations (e.g. *High energy · Low acousticness*) without any subjective tagging.
+
+This project looks at how unsupervised machine learning can be used to discover meaningful musical structure from purely numerical feature representations.
 
 ---
 
-## Dashboard Preview
+## Demo
 
-### Overview Panel
-
+### Overview Panel (Metrics & Elbow Graph)
 ![Metrics + Elbow Graph](Screenshots/elbow.png)
 
----
-
 ### 3D PCA Cluster Visualization
-
 ![3D PCA Cluster Viz](Screenshots/3d-cluster.png)
 
----
-
 ### Cluster Comparison Heatmap
-
 ![Cluster Heatmap](Screenshots/heatmap.png)
 
----
-
 ### Cluster Cards with Audio Previews
-
 ![Cluster Cards](Screenshots/cluster-cards.png)
 
----
+> **Try it live:** [spotify-song-clustering.streamlit.app](https://spotify-song-clustering.streamlit.app)
 
-## Dataset
-
-The dataset used for this project is the [Spotify Song Attributes](https://www.kaggle.com/datasets/geomack/spotifyclassification) dataset from Kaggle. Itconsists of ~1,500 Spotify tracks with the following acoustic features:
-
-* acousticness: A confidence measure from 0.0 to 1.0 of whether the track is acoustic.
-* danceability: A score describing how suitable a track is for dancing based on tempo, rhythm stability, beat strength and overall regularity.
-* duration_ms: The length of the track in milliseconds.
-* energy: A measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy.
-* instrumentalness: The likelihood a track contains no vocals. Values closer to 1.0 suggest solely instrumental tracks.
-* liveness: The likelihood of a track being performed live. Higher values suggest more audience presence.
-* loudness: The overall loudness of a track in decibels (dB). Higher values indicate louder tracks overall.
-* speechiness: Measures the presence of spoken words.
-* tempo: The speed of a track, measured in beats per minute (BPM).
-* valence: The overall musical positiveness(emotion) of a track. High valence sounds happy; low valence sounds sad or angry.
-
-Each track also includes its title and artist for display purposes.
+*The screenshots above show (top to bottom): the sidebar controls and elbow plot used to select K; an interactive 3D PCA scatter coloured by cluster; a z-score heatmap comparing cluster feature profiles; and expandable cluster cards listing representative songs with 30-second audio previews.*
 
 ---
 
-## Methodology
+## Features
 
-### Feature Preparation
+- Choose the number of clusters K (2–10) with a slider and click **Analyze**
+- Elbow plot and silhouette score to empirically validate the chosen K
+- Interactive 3D PCA scatter plot (rotatable, zoomable) coloured by cluster assignment
+- 2D feature scatter for arbitrary pairwise comparisons
+- Cluster heatmap showing z-score deviations from global feature averages
+- Auto-generated cluster labels derived purely from numerical distributions
+- Per-cluster cards listing top representative songs with 30-second iTunes audio previews
+- Download the full clustering results as a CSV
 
-Each track is represented as a 10-dimensional feature vector.
+---
 
-Since features operate on different scales (for example, `tempo` vs. `acousticness`), all variables are standardized using:
+## Tech Stack
 
+| Layer | Technology |
+|-------|------------|
+| UI | Streamlit |
+| Data | pandas, NumPy |
+| ML | scikit-learn (KMeans, PCA, StandardScaler) |
+| Visualization | Plotly |
+| Audio Previews | iTunes Search API |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- pip
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/TheInvadr/song-clustering.git
+cd song-clustering
+
+# 2. (Recommended) Create and activate a virtual environment
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# macOS / Linux
+source venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+pip install streamlit
 ```
-StandardScaler()
+
+The dataset (`data/spotify.csv`) is already included in the repository.
+
+### Running the App
+
+```bash
+streamlit run app.py
 ```
 
-This ensures equal contribution of each feature to Euclidean distance calculations within K-Means.
-
-The result is a normalized feature space where the closer two data points (songs) are in the projected space (2D/3D), the more acoustically similar they are.
+The app will open automatically in your browser at `http://localhost:8501`.
 
 ---
 
-### Clustering with K-Means
+## Usage
 
-Clustering is performed using:
-
-```
-KMeans (scikit-learn implementation)
-```
-
-K-Means partitions the feature space by minimizing within-cluster variance.
-Songs assigned to the same cluster are acoustically closer in standardized space than songs in different clusters.
-
----
-
-### Selecting the Number of Clusters
-
-To avoid arbitrary cluster counts, two evaluation metrics are used:
-
-#### Elbow Method
-
-Plots inertia (within-cluster sum of squares) across multiple K values.
-The "elbow" indicates diminishing returns in reducing internal variance.
-
-#### Silhouette Score
-
-Measures how well each song fits within its assigned cluster compared to neighboring clusters.
-
-Silhouette values close to 1 indicate clear separation; values near 0 indicate overlapping clusters.
-
-These two methods provide empirical support for choosing K.
-
----
-
-### Dimensionality Reduction
-
-The original dataset lives in a 10-dimensional feature space.
-To visualize it meaningfully, Principal Component Analysis (PCA) is applied.
-
-Two projections are provided:
-
-* **2D PCA** for compact inspection
-* **3D PCA (interactive)** for richer spatial exploration
-
-The explained variance ratio is displayed so users understand how much structural information is retained in the projection.
-
-While PCA is a linear transformation and does not preserve all variance, it provides a useful approximation of cluster separation in lower dimensions.
-
----
-
-## Cluster Interpretation
-
-Clusters are not labeled using predefined genres.
-
-Instead, each cluster is described by comparing its feature means against global dataset averages. Feature deviations are computed using z-scores, allowing identification of statistically significant characteristics.
-
-This produces concise, neutral descriptions such as:
-
-* **High energy · High tempo · Low acousticness**
-* **High acousticness · Low loudness**
-* **High valence · High danceability**
-
-These labels are derived entirely from numerical distributions and avoid subjective tagging.
-
-Cluster-level heatmaps further illustrate how segments differ relative to global averages.
-
----
-
-## Interactive Components
-
-The dashboard is designed to connect statistical output with intuitive understanding.
-
-Users can:
-
-* Rotate and zoom a 3D projection of cluster space
-* Select arbitrary feature pairs for direct comparison
-* Search for specific songs and identify their cluster membership
-* View nearest neighbors in acoustic feature space
-* Listen to 30-second previews to qualitatively assess cluster consistency
-* Download clustering results as a CSV
-
----
-
-## What This Project Demonstrates
-
-This project explores:
-
-* End-to-end application of unsupervised learning
-* Proper feature scaling and preprocessing
-* Empirical model validation (elbow + silhouette)
-* Dimensionality reduction for high-dimensional data
-* Statistical interpretation of clusters
-
-More broadly, it demonstrates how structure can emerge from purely numerical representations — even in complex domains like music — without relying on categorical labels.
+1. Open the **sidebar** on the left.
+2. Use the **Clusters (K)** slider to choose a number of clusters between 2 and 10.
+3. Toggle **3D PCA** on or off depending on whether you want an interactive 3D scatter or a 2D view.
+4. Click **Analyze** to run the clustering pipeline.
+5. Browse the three tabs:
+   - **Overview**: key metrics (song count, K, silhouette score, PCA variance) and the elbow plot.
+   - **Visualize**: interactive PCA scatter and pairwise feature scatter.
+   - **Cluster Details**: per-cluster heatmap, auto-generated labels, representative songs, and audio previews.
+6. Expand any cluster card to listen to 30-second previews and assess cluster quality qualitatively.
+7. Download the labelled dataset using the **Download CSV** button.
 
 ---
 
 ## Project Structure
 
 ```
-spotify_cluster/
-    data.py         → dataset loading & validation
-    model.py        → clustering logic & evaluation
-    ui.py           → visualization functions
-    previews.py     → audio preview integration
-app.py              → Streamlit application entry point
+.
+├── app.py                    # Streamlit entry point
+├── requirements.txt          # Python dependencies
+├── data/
+│   └── spotify.csv           # Kaggle Spotify Song Attributes dataset (~1,500 tracks)
+├── cache/
+│   └── previews_itunes.json  # Cached iTunes preview URLs
+├── spotify_cluster/
+│   ├── data.py               # Dataset loading & validation
+│   ├── model.py              # Clustering logic, PCA, and evaluation metrics
+│   ├── ui.py                 # Plotly visualization functions
+│   └── previews.py           # iTunes audio preview integration
+├── Screenshots/              # Dashboard screenshots used in this README
+└── README.md
 ```
 
 ---
 
-## Running the Application Locally
+## Contributing
 
-Install dependencies:
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature`.
+3. Commit your changes: `git commit -m "Add your feature"`.
+4. Push to your fork: `git push origin feature/your-feature`.
+5. Open a Pull Request describing what you changed and why.
 
-```bash
-pip install streamlit pandas numpy scikit-learn plotly requests
-```
+---
 
-Place the dataset at:
+## License
 
-```
-data/spotify.csv
-```
-
-Run:
-
-```bash
-streamlit run app.py
-```
+This project is licensed under the [MIT License](LICENSE).
